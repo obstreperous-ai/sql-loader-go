@@ -1,0 +1,39 @@
+# GitHub Copilot Environment Setup Steps
+# This file defines the setup steps that run before the Copilot agent starts working.
+# For more information, see:
+# https://docs.github.com/en/enterprise-cloud@latest/copilot/customizing-copilot/customizing-the-development-environment-for-copilot-coding-agent
+
+# Setup steps for sql-loader-go
+# This is a lean CLI utility in Go to execute SQL data load scripts
+
+steps:
+  # Step 1: Verify Go is installed (should be pre-installed in GitHub Actions)
+  - name: Verify Go installation
+    run: go version
+
+  # Step 2: Install golangci-lint for code quality checks
+  - name: Install golangci-lint
+    run: |
+      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
+      echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+  # Step 3: Install Go dependencies (if go.mod exists)
+  - name: Download Go dependencies
+    run: |
+      if [ -f "go.mod" ]; then
+        go mod download
+      else
+        echo "No go.mod file found, skipping dependency download"
+      fi
+
+  # Step 4: Verify build tools are ready
+  - name: Verify setup
+    run: |
+      echo "Go version: $(go version)"
+      echo "GOPATH: $(go env GOPATH)"
+      echo "GOROOT: $(go env GOROOT)"
+      if command -v golangci-lint &> /dev/null; then
+        echo "golangci-lint version: $(golangci-lint --version)"
+      else
+        echo "golangci-lint not found in PATH"
+      fi
