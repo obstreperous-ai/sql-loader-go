@@ -4,6 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/obstreperous-ai/sql-loader-go/internal/database"
+	"github.com/obstreperous-ai/sql-loader-go/internal/loader"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "modernc.org/sqlite"
 )
 
 var (
@@ -42,7 +48,26 @@ func run() error {
 		return fmt.Errorf("script file is required (use -file flag)")
 	}
 
+	// Load SQL script from file
+	script, err := loader.LoadScript(*scriptFile)
+	if err != nil {
+		return fmt.Errorf("failed to load script: %w", err)
+	}
+
+	// Connect to database
+	db, err := database.Connect(*driver, *dsn)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+	defer db.Close()
+
+	// Execute script
 	fmt.Printf("Loading SQL script from %s into %s database\n", *scriptFile, *driver)
-	// TODO: Implement actual script loading and execution
+	if err := database.ExecuteScript(db, script); err != nil {
+		return fmt.Errorf("failed to execute script: %w", err)
+	}
+
+	fmt.Println("Script executed successfully")
 	return nil
 }
+
