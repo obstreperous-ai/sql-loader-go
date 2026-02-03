@@ -15,7 +15,10 @@ steps:
   - name: Install golangci-lint
     run: |
       curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
-      echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      export PATH="$(go env GOPATH)/bin:$PATH"
+      if [ -n "$GITHUB_PATH" ]; then
+        echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      fi
 
   # Step 3: Install Go dependencies (if go.mod exists)
   - name: Download Go dependencies
