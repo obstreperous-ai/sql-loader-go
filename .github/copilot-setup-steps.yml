@@ -12,10 +12,10 @@ steps:
     run: go version
 
   # Step 2: Install golangci-lint for code quality checks
-  # Uses the official installation script from golangci-lint project
+  # Uses the official installation script pinned to v1.61.0 release
   - name: Install golangci-lint
     run: |
-      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
+      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v1.61.0/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
       export PATH="$(go env GOPATH)/bin:$PATH"
       if [ -n "$GITHUB_PATH" ]; then
         echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
