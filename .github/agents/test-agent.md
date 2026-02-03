@@ -162,8 +162,12 @@ import (
 
 func setupTestPostgres(t *testing.T) *pgxpool.Pool {
     // Note: In a real implementation, you might use testcontainers-go
-    // For this example, assuming a test connection string
-    connString := "postgres://user:pass@localhost:5432/testdb"
+    // Get connection string from environment - never hardcode credentials
+    connString := os.Getenv("TEST_POSTGRES_URL")
+    if connString == "" {
+        connString = "postgres://postgres:postgres@localhost:5432/testdb"
+        t.Logf("Using default test connection, set TEST_POSTGRES_URL to override")
+    }
     
     pool, err := pgxpool.New(context.Background(), connString)
     if err != nil {

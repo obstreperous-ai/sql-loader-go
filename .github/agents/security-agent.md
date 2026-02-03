@@ -90,9 +90,11 @@ func ValidateSQL(sql string) error {
         return errors.New("SQL cannot be empty")
     }
     
-    // Check for obviously dangerous operations if needed
+    // Example: Check for dangerous operations if needed
+    // Note: This is a simple example. For production, use a proper SQL parser
+    // or whitelist approach rather than blacklisting specific patterns
     trimmed := strings.TrimSpace(strings.ToUpper(sql))
-    if strings.HasPrefix(trimmed, "DROP DATABASE") {
+    if strings.Contains(trimmed, "DROP DATABASE") {
         return errors.New("DROP DATABASE not allowed")
     }
     
