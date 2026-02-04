@@ -1,0 +1,104 @@
+version: '3'
+
+vars:
+  BINARY_NAME: sql-loader
+  BUILD_DIR: ./build
+  CMD_DIR: ./cmd/sql-loader
+  VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+  COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo "none"
+  DATE:
+    sh: date -u +%Y-%m-%dT%H:%M:%SZ
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the sql-loader binary
+    cmds:
+      - go build -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o {{.BINARY_NAME}} {{.CMD_DIR}}
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BINARY_NAME}}"
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -v -race -cover ./...
+
+  test-coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - go test -v -race -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated at coverage.html"
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run ./...
+
+  fmt:
+    desc: Format code
+    cmds:
+      - go fmt ./...
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f {{.BINARY_NAME}}
+      - rm -f coverage.out coverage.html
+
+  package:
+    desc: Build cross-platform binaries
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - task: package-linux-amd64
+      - task: package-linux-arm64
+      - task: package-darwin-amd64
+      - task: package-darwin-arm64
+      - task: package-windows-amd64
+
+  package-linux-amd64:
+    internal: true
+    cmds:
+      - GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o {{.BUILD_DIR}}/{{.BINARY_NAME}}-linux-amd64 {{.CMD_DIR}}
+
+  package-linux-arm64:
+    internal: true
+    cmds:
+      - GOOS=linux GOARCH=arm64 go build -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o {{.BUILD_DIR}}/{{.BINARY_NAME}}-linux-arm64 {{.CMD_DIR}}
+
+  package-darwin-amd64:
+    internal: true
+    cmds:
+      - GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o {{.BUILD_DIR}}/{{.BINARY_NAME}}-darwin-amd64 {{.CMD_DIR}}
+
+  package-darwin-arm64:
+    internal: true
+    cmds:
+      - GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o {{.BUILD_DIR}}/{{.BINARY_NAME}}-darwin-arm64 {{.CMD_DIR}}
+
+  package-windows-amd64:
+    internal: true
+    cmds:
+      - GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" -o {{.BUILD_DIR}}/{{.BINARY_NAME}}-windows-amd64.exe {{.CMD_DIR}}
+
+  install:
+    desc: Install the binary to $GOPATH/bin
+    cmds:
+      - go install -ldflags "-X main.version={{.VERSION}} -X main.commit={{.COMMIT}} -X main.date={{.DATE}}" {{.CMD_DIR}}
+
+  deps:
+    desc: Download and tidy dependencies
+    cmds:
+      - go mod download
+      - go mod tidy
