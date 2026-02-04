@@ -12,12 +12,13 @@ steps:
     run: go version
 
   # Step 2: Install golangci-lint for code quality checks
-  # Uses the official installation script pinned to v1.61.0 release
+  # Uses the official installation script pinned to v1.64.0 release
+  # v1.64+ is compatible with Go 1.24+
   # Note: curl -f flag ensures the command fails on HTTP errors (404, etc.)
   - name: Install golangci-lint
     run: |
       set -e
-      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v1.61.0/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.61.0
+      curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v1.64.0/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.0
       export PATH="$(go env GOPATH)/bin:$PATH"
       if [ -n "$GITHUB_PATH" ]; then
         echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
@@ -40,6 +41,9 @@ steps:
       echo "GOROOT: $(go env GOROOT)"
       if command -v golangci-lint &> /dev/null; then
         echo "golangci-lint version: $(golangci-lint --version)"
+        # Verify golangci-lint can run on this project
+        golangci-lint config path || echo "No golangci-lint config found (will use defaults)"
       else
         echo "WARNING: golangci-lint not found in PATH"
       fi
+      echo "Setup verification complete"

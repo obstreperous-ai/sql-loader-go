@@ -1,3 +1,5 @@
+// Package main is the entry point for the sql-loader CLI application.
+// It provides a command-line interface to execute SQL scripts against databases.
 package main
 
 import (
@@ -59,7 +61,11 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to close database: %v\n", closeErr)
+		}
+	}()
 
 	// Execute script
 	fmt.Printf("Loading SQL script from %s into %s database\n", *scriptFile, *driver)
@@ -70,4 +76,3 @@ func run() error {
 	fmt.Println("Script executed successfully")
 	return nil
 }
-
