@@ -180,12 +180,39 @@ Contributions are welcome! This project follows test-first development and minim
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Write tests for your changes
 4. Implement your changes
-5. Ensure all tests pass (`task test`)
-6. Ensure code is formatted (`task fmt`)
-7. Ensure linting passes (`task lint`)
-8. Commit your changes (`git commit -m 'Add amazing feature'`)
-9. Push to the branch (`git push origin feature/amazing-feature`)
-10. Open a Pull Request
+5. **Run all quality checks** (see checklist below)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Pre-PR Quality Checklist
+
+**Before opening a Pull Request, ensure ALL of these checks pass:**
+
+```bash
+# 1. Format code
+go fmt ./...
+
+# 2. Run tests with race detection
+go test -v -race ./...
+
+# 3. Build the binary
+go build -o sql-loader ./cmd/sql-loader
+
+# 4. Verify binary works
+./sql-loader -version
+
+# 5. Run linter (requires golangci-lint)
+golangci-lint run ./...
+```
+
+**All checks must pass with zero errors/warnings before submitting a PR.** This prevents CI/CD failures and ensures code quality.
+
+To install golangci-lint if not already installed:
+```bash
+# Install golangci-lint v1.64+ (required for Go 1.24+)
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v1.64.0/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.0
+```
 
 ### Code Style
 

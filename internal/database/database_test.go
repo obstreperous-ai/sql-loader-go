@@ -33,7 +33,11 @@ func TestConnect(t *testing.T) {
 				return
 			}
 			if !tt.wantErr && db != nil {
-				defer db.Close()
+				defer func() {
+					if closeErr := db.Close(); closeErr != nil {
+						t.Errorf("Close() error = %v", closeErr)
+					}
+				}()
 				if err := db.Ping(); err != nil {
 					t.Errorf("Ping() error = %v", err)
 				}
@@ -47,7 +51,11 @@ func TestExecuteScript(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open database: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			t.Errorf("Close() error = %v", closeErr)
+		}
+	}()
 
 	tests := []struct {
 		name    string

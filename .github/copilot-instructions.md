@@ -19,6 +19,18 @@ This is a lean CLI utility in Go to execute SQL data load scripts in a locked-do
 
 ## Development Workflow
 
+### Mandatory Pre-Completion Quality Checks
+
+**CRITICAL**: Before reporting completion or finalizing any task, you MUST run ALL of these checks and fix any issues:
+
+1. **Format Code**: `go fmt ./...` (must show no changes)
+2. **Run Tests**: `go test -v -race ./...` (all tests must pass)
+3. **Build Binary**: `go build -o sql-loader ./cmd/sql-loader` (must succeed)
+4. **Lint Code**: `golangci-lint run ./...` (must have zero errors/warnings)
+5. **Verify Binary**: `./sql-loader -version` (must run successfully)
+
+**These checks are NOT optional**. If any check fails, you must fix the issues before proceeding. CI/CD will run these same checks and will fail if they don't pass.
+
 ### Setup and Build Commands
 
 ```bash
@@ -58,6 +70,30 @@ golangci-lint run
 4. **Documentation**: Document public APIs with clear godoc comments
 5. **Security**: Follow secure coding practices, especially for SQL execution
 6. **Single Responsibility**: Keep functions and modules focused on one thing
+7. **Zero Tolerance for Failures**: All tests, builds, and lints must pass before completion
+
+## CI/CD Integration
+
+### Understanding CI/CD Failures
+
+When CI/CD failures are mentioned:
+
+1. **Check Workflow Runs**: Use GitHub Actions tools to view recent workflow runs
+2. **Review Job Logs**: Get detailed logs for failed jobs to understand what went wrong
+3. **Common Failure Patterns**:
+   - **Lint Failures**: Usually due to code style issues or golangci-lint version mismatch
+   - **Build Failures**: Missing dependencies, syntax errors, or incompatible Go version
+   - **Test Failures**: Logic errors, race conditions, or environmental issues
+
+### Preventing CI/CD Failures
+
+**Always run the Mandatory Pre-Completion Quality Checks locally before finalizing work.** This prevents CI/CD failures by catching issues early.
+
+If golangci-lint is not available locally:
+```bash
+# Install golangci-lint (version 1.64+ for Go 1.24+)
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v1.64.0/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.0
+```
 
 ## What to Modify
 
@@ -65,7 +101,7 @@ golangci-lint run
 - Source code in `cmd/` and `internal/` directories
 - Test files (`*_test.go`)
 - Documentation files (`*.md`)
-- Build and CI configuration (`.github/workflows/`, `Makefile`, etc.)
+- Build and CI configuration (`.github/workflows/`, `Taskfile.yml`, `.golangci.yml`, etc.)
 - Go module files (`go.mod`, `go.sum`)
 
 ## What NOT to Modify
@@ -149,5 +185,8 @@ func DoSomething() error {
 - Keep PRs small and focused
 - Include tests for all new functionality
 - Update documentation as needed
+- **CRITICAL**: Run ALL Mandatory Pre-Completion Quality Checks before submitting
 - Ensure all tests pass before submitting
+- Ensure golangci-lint runs with zero errors/warnings
 - Follow the project's minimalism principle
+- Never submit a PR with failing CI/CD checks

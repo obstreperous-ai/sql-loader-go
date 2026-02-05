@@ -1,3 +1,5 @@
+// Package database provides functionality for connecting to and executing SQL scripts
+// against databases. It supports multiple database drivers including PostgreSQL and SQLite.
 package database
 
 import (
@@ -18,7 +20,9 @@ func Connect(driver, dsn string) (*sql.DB, error) {
 	}
 
 	if err := db.Ping(); err != nil {
-		db.Close()
+		if closeErr := db.Close(); closeErr != nil {
+			return nil, fmt.Errorf("failed to ping database: %w (close error: %v)", err, closeErr)
+		}
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
