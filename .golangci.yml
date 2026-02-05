@@ -1,0 +1,60 @@
+# golangci-lint configuration for sql-loader-go
+# This config ensures high code quality standards
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck       # Check for unchecked errors
+    - gosimple       # Simplify code
+    - govet          # Reports suspicious constructs
+    - ineffassign    # Detects ineffectual assignments
+    - staticcheck    # Static analysis checks
+    - unused         # Checks for unused code
+    - gofmt          # Checks if code was gofmt-ed
+    - goimports      # Checks imports are formatted
+    - misspell       # Finds commonly misspelled words
+    - revive         # Fast, configurable, extensible linter
+    - gosec          # Security checks
+    - goconst        # Finds repeated strings that could be constants
+    - unconvert      # Unnecessary type conversions
+    - unparam        # Reports unused function parameters
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  
+  govet:
+    enable-all: true
+  
+  revive:
+    severity: warning
+    confidence: 0.8
+    rules:
+      - name: exported
+        severity: warning
+      - name: package-comments
+        severity: warning
+  
+  gosec:
+    excludes:
+      - G104 # Allow unhandled errors in specific cases (we use errcheck)
+  
+  misspell:
+    locale: US
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - goconst
+        - gosec
