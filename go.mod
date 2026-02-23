@@ -4,7 +4,7 @@ go 1.24.12
 
 require (
 	github.com/jackc/pgx/v5 v5.8.0
-	modernc.org/sqlite v1.45.0
+	modernc.org/sqlite v1.46.1
 )
 
 require (
