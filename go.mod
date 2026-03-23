@@ -3,7 +3,7 @@ module github.com/obstreperous-ai/sql-loader-go
 go 1.25.0
 
 require (
-	github.com/jackc/pgx/v5 v5.8.0
+	github.com/jackc/pgx/v5 v5.9.1
 	modernc.org/sqlite v1.46.2
 )
 
